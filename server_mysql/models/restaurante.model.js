@@ -44,6 +44,8 @@ const Restaurantes = sequelize.define("Restaurantes", {
         }
         
     }
-});
+}
+,{ timestamps: false}
+);
 
 module.exports = Restaurantes;
