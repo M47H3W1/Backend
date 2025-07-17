@@ -93,8 +93,10 @@ require('./server_mysql/config/sequelize.config.js'); // Importar la configuraci
  //const allRestauranteRoutes = require('./server/routes/restaurante.routes');
  const allRestauranteRoutes = require('./server_mysql/routes/restaurante.routes');
  const allTipoComidaRoutes = require('./server_mysql/routes/tipoComida.routes');
+const allMenuRoutes = require('./server_mysql/routes/menu.routes');
  allRestauranteRoutes(app);
  allTipoComidaRoutes(app); // Registrar las rutas de tipo de comida
+allMenuRoutes(app); // Registrar las rutas de menú
  app.listen(port,()=>{
     console.log("Server corriendo en el puerto: ",port);
  })
