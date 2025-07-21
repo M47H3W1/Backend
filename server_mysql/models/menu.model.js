@@ -4,27 +4,18 @@ const TipoComida = require('./tipoComida.model');
 const Restaurante = require('./restaurante.model');
 
 
-const menu = sequelize.define("menu", {
-    fecha:{
+const menu = sequelize.define("Menu", {
+    fecha: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
         allowNull: false,
-        validate: {
-            notEmpty: { msg: "La fecha es obligatoria" }
-        }
     }
 }, { 
     timestamps: false,
-    freezeTableName: true
+    tableName: 'Menus'
 });
 
-Restaurante.belongsToMany(TipoComida, {through: menu});
-
-TipoComida.belongsToMany(Restaurante, {through: menu});
-
-//El belongsTo es como un innerJoin al usar el Include
-menu.belongsTo(TipoComida, {foreignKey: 'tipoId' });
-
-menu.belongsTo(Restaurante, {foreignKey: 'restauranteId' });
+Restaurante.belongsToMany(TipoComida, { through: menu });
+TipoComida.belongsToMany(Restaurante, { through: menu });
 
 module.exports = menu;
