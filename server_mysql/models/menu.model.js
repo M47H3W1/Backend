@@ -13,7 +13,10 @@ const menu = sequelize.define("menu", {
             notEmpty: { msg: "La fecha es obligatoria" }
         }
     }
-}, { timestamps: false });
+}, { 
+    timestamps: false,
+    freezeTableName: true
+});
 
 Restaurante.belongsToMany(TipoComida, {through: menu});
 
