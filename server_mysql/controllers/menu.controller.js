@@ -69,25 +69,29 @@ module.exports.getMenuByRestaurante = async (request, response) => {
         const menus = await Menu.findAll({
             where: { restaurante_id: request.params.id },
             include: [
-                {
-                    model: Restaurantes
-                },
-                {
-                    model: TipoComida
-                }
+                { model: TipoComida }
             ]
         });
         if (!menus.length) {
             return response.status(404).json({
                 status: "error",
-                message: "No se encontraron menus para el restaurante solicitado"
+                message: "No se encontraron tipos de comida para el restaurante solicitado"
             });
         }
-        response.json(menus);
+        // Extraer solo los tipos de comida y evitar duplicados
+        const tiposComida = [];
+        const ids = new Set();
+        for (const menu of menus) {
+            if (menu.TipoComida && !ids.has(menu.TipoComida.id)) {
+                tiposComida.push(menu.TipoComida);
+                ids.add(menu.TipoComida.id);
+            }
+        }
+        response.json(tiposComida);
     } catch (error) {
         response.status(500).json({
             status: "error",
-            message: "Error al obtener los menus",
+            message: "Error al obtener los tipos de comida",
             error: error.message
         });
     }
