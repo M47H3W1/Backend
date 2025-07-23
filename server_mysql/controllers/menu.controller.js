@@ -97,7 +97,8 @@ module.exports.getMenuByRestaurante = async (request, response) => {
     }
 }
 
-//Se pide que dado el idTIpoComida se obtenga los restaurantes que ofrecen ese tipo de comida, primero validar que el id existe, si no existe este tipo de comida lo indica al usuario
+//Dado el idTIpoComida se obtenga los restaurantes que ofrecen ese tipo de comida, 
+// primero validar que el id existe, si no existe este tipo de comida lo indica al usuario
 
 module.exports.getRestaurantesByTipoComida = async (request, response) => {
     const { idTipoComida } = request.params;
@@ -120,7 +121,8 @@ module.exports.getRestaurantesByTipoComida = async (request, response) => {
         const restaurantes = await Restaurantes.findAll({
             include: [{
                 model: TipoComida,
-                where: { id: idTipoComida }
+                where: { id: idTipoComida },
+                attributes: [] // <-- No incluir datos de TipoComida en la respuesta
             }]
         });
         if (!restaurantes.length) {
@@ -138,3 +140,100 @@ module.exports.getRestaurantesByTipoComida = async (request, response) => {
         });
     }
 }
+
+// Obtener un menú por su id
+module.exports.getMenuById = async (request, response) => {
+    try {
+        const menu = await Menu.findByPk(request.params.id, {
+            include: [
+                { model: TipoComida },
+                { model: Restaurantes }
+            ]
+        });
+        if (!menu) {
+            return response.status(404).json({
+                status: "error",
+                message: "Menú no encontrado"
+            });
+        }
+        response.json(menu);
+    } catch (error) {
+        response.status(500).json({
+            status: "error",
+            message: "Error al obtener el menú",
+            error: error.message
+        });
+    }
+};
+
+// Actualizar un menú
+module.exports.updateMenu = async (request, response) => {
+    try {
+        const { fecha, tipoComidaId, restaurante_id } = request.body;
+        const menu = await Menu.findByPk(request.params.id);
+        if (!menu) {
+            return response.status(404).json({
+                status: "error",
+                message: "Menú no encontrado"
+            });
+        }
+        menu.fecha = fecha || menu.fecha;
+        menu.tipoComidaId = tipoComidaId || menu.tipoComidaId;
+        menu.restaurante_id = restaurante_id || menu.restaurante_id;
+        await menu.save();
+        response.json({
+            status: "ok",
+            message: "Menú actualizado correctamente",
+            data: menu
+        });
+    } catch (error) {
+        response.status(500).json({
+            status: "error",
+            message: "Error al actualizar el menú",
+            error: error.message
+        });
+    }
+};
+
+// Eliminar un menú
+module.exports.deleteMenu = async (request, response) => {
+    try {
+        const menu = await Menu.findByPk(request.params.id);
+        if (!menu) {
+            return response.status(404).json({
+                status: "error",
+                message: "Menú no encontrado"
+            });
+        }
+        await menu.destroy();
+        response.json({
+            status: "ok",
+            message: "Menú eliminado correctamente"
+        });
+    } catch (error) {
+        response.status(500).json({
+            status: "error",
+            message: "Error al eliminar el menú",
+            error: error.message
+        });
+    }
+};
+
+// Listar todos los menús
+module.exports.getAllMenus = async (request, response) => {
+    try {
+        const menus = await Menu.findAll({
+            include: [
+                { model: TipoComida },
+                { model: Restaurantes }
+            ]
+        });
+        response.json(menus);
+    } catch (error) {
+        response.status(500).json({
+            status: "error",
+            message: "Error al obtener los menús",
+            error: error.message
+        });
+    }
+};
