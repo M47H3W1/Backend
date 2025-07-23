@@ -25,7 +25,14 @@ const Usuario = sequelize.define('Usuario', {
             notNull: { msg: "El correo electrónico es obligatorio" },
             isEmail: { msg: "El correo electrónico debe ser válido" }
         }
-    }
+    },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+            notNull: { msg: "Password is requiered" }
+        }
+    },
 }, {
     timestamps: false
 });

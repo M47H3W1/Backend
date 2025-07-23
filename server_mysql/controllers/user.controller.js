@@ -1,5 +1,8 @@
 const Usuario = require('../models/user.model.js');
-
+require("dotenv").config();
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const dotenv = require('dotenv');
 module.exports.CreateUser = async (request, response) => {
     const { userName, email } = request.body;
 
@@ -174,4 +177,8 @@ module.exports.deleteUser = async (request, response) => {
             error: error.message
         });
     }
+
+    const generateToken = (id) => {
+        return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' }); //Validez de 30 días en el SERVIDOR  
+    };
 };
