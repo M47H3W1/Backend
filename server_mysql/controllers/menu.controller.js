@@ -1,9 +1,9 @@
 const Menu = require('../models/menu.model');
 const TipoComida = require('../models/tipoComida.model');
-const Restaurante = require('../models/restaurante.model');
+const Restaurantes = require('../models/restaurante.model');
 
 module.exports.CreateMenu = async (request, response) => {
-    const { fecha, tipoComidaId, restaurante_id } = request.body; // <--- usa restaurante_id
+    const { fecha, tipoComidaId, restaurante_id } = request.body;
 
     if (!tipoComidaId || !restaurante_id) {
         return response.status(400).json({
@@ -13,7 +13,7 @@ module.exports.CreateMenu = async (request, response) => {
     }
 
     try {
-        const restaurante = await Restaurante.findByPk(restaurante_id);
+        const restaurante = await Restaurantes.findByPk(restaurante_id);
         if (!restaurante) {
             return response.status(404).json({
                 status: "error",
@@ -63,12 +63,19 @@ module.exports.CreateMenu = async (request, response) => {
     }
 }
 
-//Obtener los tipos de comida que ofrece un restaurante en concreto
+// Obtener los tipos de comida que ofrece un restaurante en concreto
 module.exports.getMenuByRestaurante = async (request, response) => {    
     try {
-        const menus = await menu.findAll({
-            where: { restauranteId: request.params.id },
-            include: [Restaurante, TipoComida] // Cambia TipoRestaurante por TipoComida
+        const menus = await Menu.findAll({
+            where: { restaurante_id: request.params.id },
+            include: [
+                {
+                    model: Restaurantes
+                },
+                {
+                    model: TipoComida
+                }
+            ]
         });
         if (!menus.length) {
             return response.status(404).json({
@@ -106,7 +113,7 @@ module.exports.getRestaurantesByTipoComida = async (request, response) => {
             });
         }
 
-        const restaurantes = await Restaurante.findAll({
+        const restaurantes = await Restaurantes.findAll({
             include: [{
                 model: TipoComida,
                 where: { id: idTipoComida }
