@@ -1,24 +1,63 @@
-const menu = require('../models/menu.model');
+const Menu = require('../models/menu.model');
 const TipoComida = require('../models/tipoComida.model');
 const Restaurante = require('../models/restaurante.model');
 
 module.exports.CreateMenu = async (request, response) => {
-    const { fecha, tipoId, restauranteId } = request.body;
-    try {
-        const newMenu = await menu.create({
-            fecha,
-            tipoId,
-            restauranteId
+    const { fecha, tipoComidaId, restaurante_id } = request.body; // <--- usa restaurante_id
+
+    if (!tipoComidaId || !restaurante_id) {
+        return response.status(400).json({
+            status: "error",
+            message: "tipoComidaId y restaurante_id son obligatorios"
         });
+    }
+
+    try {
+        const restaurante = await Restaurante.findByPk(restaurante_id);
+        if (!restaurante) {
+            return response.status(404).json({
+                status: "error",
+                message: "El restaurante no existe"
+            });
+        }
+
+        const tipoComida = await TipoComida.findByPk(tipoComidaId);
+        if (!tipoComida) {
+            return response.status(404).json({
+                status: "error",
+                message: "El tipo de comida no existe"
+            });
+        }
+
+        const existingMenu = await Menu.findOne({
+            where: {
+                restaurante_id,
+                tipoComidaId
+            }
+        });
+
+        if (existingMenu) {
+            return response.status(409).json({
+                status: "error",
+                message: "Ya existe un menú para esta combinación de restaurante y tipo de comida"
+            });
+        }
+
+        const newMenu = await Menu.create({
+            fecha: fecha || new Date(),
+            tipoComidaId,
+            restaurante_id
+        });
+
         response.status(201).json({
             status: "ok",
-            message: "Menu creado correctamente",
+            message: "Menú creado correctamente",
             data: newMenu
         });
     } catch (error) {
         response.status(500).json({
             status: "error",
-            message: "Error al crear el menu",
+            message: "Error al crear el menú",
             error: error.message
         });
     }
