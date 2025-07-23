@@ -1,8 +1,8 @@
 const { Sequelize } = require("sequelize");
 
 const username = "root";
-//const password = "root";
-const password = "admin";
+const password = "root";
+//const password = "admin";
 const bdd_name = "Restaurante";
 const hostName = "localhost";
 
@@ -25,8 +25,8 @@ const sequelize = new Sequelize(bdd_name, username, password, {
 //Lo recomendable en el desarrollo es usar force true
 //En producción no se debe utilizar ninguno.
 
-//sequelize.sync({ force: true }).then(() => {
-sequelize.sync().then(() => {
+sequelize.sync({ force: true }).then(() => {
+//sequelize.sync().then(() => {
     console.log("Base de datos sincronizada");
 }).catch((error) => {
     console.error("Error al sincronizar la base de datos", error);
