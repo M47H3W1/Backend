@@ -1,7 +1,7 @@
 const {DataTypes} = require('sequelize');
- const sequelize = require('..sequelize.config.js'); 
+const sequelize = require('../config/sequelize.config.js'); // Corregido el path
 
- const Usuario = sequelize.define('Usuario', {
+const Usuario = sequelize.define('Usuario', {
     id: {
         type: DataTypes.INTEGER,
         allowNull: false,

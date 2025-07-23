@@ -4,6 +4,11 @@ const Restaurantes = require('./restaurante.model');
 const TipoComida = require('./tipoComida.model');
 
 const Menu = sequelize.define('Menu', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
     fecha: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
