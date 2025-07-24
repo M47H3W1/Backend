@@ -3,39 +3,56 @@ require("dotenv").config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const dotenv = require('dotenv');
-module.exports.CreateUser = async (request, response) => {
-    const { userName, email } = request.body;
 
-    if (!userName || !email) {
+const generateToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' }); //Validez de 30 días en el SERVIDOR  
+};
+
+module.exports.CreateUser = async (request, response) => {
+    const { userName, email , password } = request.body;
+
+    if (!userName || !email || !password) {
         return response.status(400).json({
             status: "error",
-            message: "userName y email son obligatorios"
+            message: "userName, email y password son obligatorios"
         });
-    }
-
-    try {
-        // Verificar si el usuario ya existe
-        const existingUser = await Usuario.findOne({ where: { userName } });
-        if (existingUser) {
-            return response.status(409).json({
+    }else{
+        const userFound = await Usuario.findOne({ where: { email } });
+        if (userFound) {
+            return response.status(400).json({
                 status: "error",
-                message: "El nombre de usuario ya está en uso"
+                message: "El usuario ya existe con ese email"
             });
+        }else{
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+            
+            Usuario.create({
+                userName,
+                email,
+                password: hashedPassword
+            }) 
+            
+            .then(user => response.json({email: user.email, userName: user.userName, id: user.id, token: generateToken(user.id)}))
+            .catch(err => response.status(400).json("Error: " + err));
         }
+    }
+}
 
-        // Crear el nuevo usuario
-        const newUser = await Usuario.create({ userName, email });
-
-        response.status(201).json({
-            status: "ok",
-            message: "Usuario creado correctamente",
-            data: newUser
+module.exports.LoginUser = async (request, response) => {
+    const { email, password } = request.body;
+    const userFound = await Usuario.findOne({ where: { email } });
+    if(userFound && (await bcrypt.compare(password, userFound.password))) {
+        response.json({
+            email: userFound.email,
+            userName: userFound.userName,
+            id: userFound.id,
+            token: generateToken(userFound.id)
         });
-    } catch (error) {
-        console.error("Error al crear el usuario:", error);
-        response.status(500).json({
+    } else {
+        response.status(401).json({
             status: "error",
-            message: "Error interno del servidor"
+            message: "Credenciales inválidas"
         });
     }
 }
@@ -178,7 +195,4 @@ module.exports.deleteUser = async (request, response) => {
         });
     }
 
-    const generateToken = (id) => {
-        return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' }); //Validez de 30 días en el SERVIDOR  
-    };
 };

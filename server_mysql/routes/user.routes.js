@@ -2,7 +2,9 @@ const UserController = require('../controllers/user.controller');
 
 module.exports = function(app) {
     // Crear un nuevo usuario
-    app.post('/usuarios', UserController.CreateUser);
+    app.post('/usuarios/register', UserController.CreateUser);
+
+    app.post('/usuarios/login', UserController.LoginUser);
 
     // Obtener todos los usuarios
     app.get('/usuarios', UserController.getAllUsers);
