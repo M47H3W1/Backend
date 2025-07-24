@@ -38,7 +38,7 @@ module.exports.CreateUser = async (request, response) => {
         }
     }
 }
-
+//Esto es autenticación, pero no es autorización (Dar acceso a recursos específicos)
 module.exports.LoginUser = async (request, response) => {
     const { email, password } = request.body;
     const userFound = await Usuario.findOne({ where: { email } });
