@@ -14,7 +14,7 @@ module.exports.protect = async (req, res, next) => {
             console.log("Token procesado:", token);
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             req.user = await Usuario.findByPk(decoded.id); // Buscar el usuario por ID
-
+            req.user.password = undefined; // No enviar la contraseña en la respuesta
             next(); // Continuar con la siguiente función middleware o ruta
         } catch (error) {
             res.status(401).json({ message: 'No autorizado' });   
